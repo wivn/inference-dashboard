@@ -16,11 +16,11 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
       case 'up':
-        return <TrendingUp className="w-4 h-4 text-red-500" />;
+        return <TrendingUp className="w-4 h-4" style={{ color: currentColors.error }} />;
       case 'down':
-        return <TrendingDown className="w-4 h-4 text-green-500" />;
+        return <TrendingDown className="w-4 h-4" style={{ color: currentColors.success }} />;
       case 'stable':
-        return <Minus className="w-4 h-4" style={{ color: currentColors.secondary }} />;
+        return <Minus className="w-4 h-4" style={{ color: currentColors.textSecondary }} />;
     }
   };
 
@@ -29,68 +29,69 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, delay: 0.05, ease: 'easeOut' }}
-          className="rounded-2xl p-6 transition-all hover:scale-[1.02]"
+          transition={{ duration: 0.15, delay: 0.02, ease: [0.25, 1, 0.5, 1] }}
+          className="rounded-md p-4 border"
           style={{
             backgroundColor: currentColors.card,
-            border: `1px solid ${currentColors.border}`,
-            transform: 'translateZ(0)'
+            borderColor: currentColors.border,
           }}
         >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm" style={{ color: currentColors.textSecondary }}>Total Spend</span>
-            <DollarSign className="w-5 h-5" style={{ color: currentColors.primary }} />
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium" style={{ color: currentColors.textSecondary }}>Total Spend</span>
+            <div className="p-1 rounded border" style={{ borderColor: currentColors.border }}>
+              <DollarSign className="w-3.5 h-3.5" style={{ color: currentColors.primary }} />
+            </div>
           </div>
-          <div className="text-3xl font-bold" style={{ color: currentColors.text }}>
+          <div className="text-2xl font-semibold font-mono tabular-nums" style={{ color: currentColors.text }}>
             ${data.totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
-          <div className="text-xs mt-1" style={{ color: currentColors.textSecondary }}>This month</div>
+          <div className="text-xs mt-2" style={{ color: currentColors.textSecondary }}>This month</div>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, delay: 0.08, ease: 'easeOut' }}
-          className="rounded-2xl p-6 transition-all hover:scale-[1.02]"
+          transition={{ duration: 0.15, delay: 0.04, ease: [0.25, 1, 0.5, 1] }}
+          className="rounded-md p-4 border"
           style={{
             backgroundColor: currentColors.card,
-            border: `1px solid ${isOverBudget ? '#ef4444' : currentColors.border}`,
-            transform: 'translateZ(0)'
+            borderColor: isOverBudget ? currentColors.error : currentColors.border,
           }}
         >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm" style={{ color: currentColors.textSecondary }}>Budget Usage</span>
-            {isOverBudget && <AlertCircle className="w-5 h-5 text-red-500" />}
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium" style={{ color: currentColors.textSecondary }}>Budget Usage</span>
+            {isOverBudget && <AlertCircle className="w-4 h-4" style={{ color: currentColors.error }} />}
           </div>
-          <div className={`text-3xl font-bold ${isOverBudget ? 'text-red-500' : 'text-green-500'}`}>
+          <div className="text-2xl font-semibold font-mono tabular-nums" style={{ color: isOverBudget ? currentColors.error : currentColors.success }}>
             {budgetUsagePercentage.toFixed(1)}%
           </div>
-          <div className="text-xs mt-1" style={{ color: currentColors.textSecondary }}>
+          <div className="text-xs mt-2 font-mono tabular-nums" style={{ color: currentColors.textSecondary }}>
             ${data.budget.toLocaleString()} budget
           </div>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, delay: 0.11, ease: 'easeOut' }}
-          className="rounded-2xl p-6 transition-all hover:scale-[1.02]"
+          transition={{ duration: 0.15, delay: 0.06, ease: [0.25, 1, 0.5, 1] }}
+          className="rounded-md p-4 border"
           style={{
             backgroundColor: currentColors.card,
-            border: `1px solid ${currentColors.border}`,
-            transform: 'translateZ(0)'
+            borderColor: currentColors.border,
           }}
         >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm" style={{ color: currentColors.textSecondary }}>Remaining</span>
-            <DollarSign className="w-5 h-5" style={{ color: currentColors.secondary }} />
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium" style={{ color: currentColors.textSecondary }}>Remaining</span>
+            <div className="p-1 rounded border" style={{ borderColor: currentColors.border }}>
+              <DollarSign className="w-3.5 h-3.5" style={{ color: currentColors.textSecondary }} />
+            </div>
           </div>
-          <div className={`text-3xl font-bold`} style={{ color: isOverBudget ? '#ef4444' : currentColors.secondary }}>
+          <div className="text-2xl font-semibold font-mono tabular-nums" style={{ color: isOverBudget ? currentColors.error : currentColors.text }}>
             ${Math.abs(data.budget - data.totalCost).toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
-          <div className="text-xs mt-1" style={{ color: currentColors.textSecondary }}>
+          <div className="text-xs mt-2" style={{ color: currentColors.textSecondary }}>
             {isOverBudget ? 'Over budget' : 'Available'}
           </div>
         </motion.div>
@@ -100,22 +101,17 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pie Chart */}
         <motion.div
-          initial={{ opacity: 0, x: -10 }}
+          initial={{ opacity: 0, x: -5 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.2, delay: 0.14, ease: 'easeOut' }}
-          className="rounded-2xl p-6"
+          transition={{ duration: 0.15, delay: 0.08, ease: [0.25, 1, 0.5, 1] }}
+          className="rounded-md p-4 border"
           style={{
             backgroundColor: currentColors.card,
-            border: `1px solid ${currentColors.border}`,
-            transform: 'translateZ(0)'
+            borderColor: currentColors.border,
           }}
         >
-          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <span className="bg-gradient-to-r bg-clip-text text-transparent" style={{
-              backgroundImage: `linear-gradient(to right, ${currentColors.primary}, ${currentColors.secondary})`
-            }}>
-              Cost Distribution
-            </span>
+          <h3 className="text-sm font-semibold mb-4" style={{ color: currentColors.text }}>
+            Cost Distribution
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -149,22 +145,17 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
 
         {/* Area Chart */}
         <motion.div
-          initial={{ opacity: 0, x: 10 }}
+          initial={{ opacity: 0, x: 5 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.2, delay: 0.17, ease: 'easeOut' }}
-          className="rounded-2xl p-6"
+          transition={{ duration: 0.15, delay: 0.1, ease: [0.25, 1, 0.5, 1] }}
+          className="rounded-md p-4 border"
           style={{
             backgroundColor: currentColors.card,
-            border: `1px solid ${currentColors.border}`,
-            transform: 'translateZ(0)'
+            borderColor: currentColors.border,
           }}
         >
-          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <span className="bg-gradient-to-r bg-clip-text text-transparent" style={{
-              backgroundImage: `linear-gradient(to right, ${currentColors.accent}, ${currentColors.tertiary})`
-            }}>
-              30-Day Trend
-            </span>
+          <h3 className="text-sm font-semibold mb-4" style={{ color: currentColors.text }}>
+            30-Day Trend
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={data.timeSeriesData}>
@@ -215,45 +206,43 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
 
       {/* Service Breakdown List */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 5 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, delay: 0.2, ease: 'easeOut' }}
-        className="rounded-2xl p-6"
+        transition={{ duration: 0.15, delay: 0.12, ease: [0.25, 1, 0.5, 1] }}
+        className="rounded-md p-4 border"
         style={{
           backgroundColor: currentColors.card,
-          border: `1px solid ${currentColors.border}`,
-          transform: 'translateZ(0)'
+          borderColor: currentColors.border,
         }}
       >
-        <h3 className="text-xl font-semibold mb-4" style={{ color: currentColors.text }}>Service Breakdown</h3>
-        <div className="space-y-3">
+        <h3 className="text-sm font-semibold mb-4" style={{ color: currentColors.text }}>Service Breakdown</h3>
+        <div className="space-y-2">
           {data.costBreakdown.map((item, index) => (
             <motion.div
               key={item.service}
-              initial={{ opacity: 0, x: -10 }}
+              initial={{ opacity: 0, x: -5 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.15, delay: 0.23 + index * 0.03, ease: 'easeOut' }}
-              className="flex items-center justify-between p-4 rounded-xl transition-all hover:scale-[1.01]"
+              transition={{ duration: 0.1, delay: 0.14 + index * 0.02, ease: [0.25, 1, 0.5, 1] }}
+              className="flex items-center justify-between p-3 rounded border"
               style={{
-                backgroundColor: `${currentColors.primary}08`,
-                border: `1px solid ${currentColors.border}`,
-                transform: 'translateZ(0)'
+                backgroundColor: currentColors.bg,
+                borderColor: currentColors.border,
               }}
             >
               <div className="flex items-center gap-3 flex-1">
                 <div
-                  className="w-3 h-3 rounded-full"
+                  className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: item.color }}
                 />
                 <div className="flex-1">
-                  <div className="font-medium" style={{ color: currentColors.text }}>{item.service}</div>
-                  <div className="text-sm" style={{ color: currentColors.textSecondary }}>{item.percentage}% of total</div>
+                  <div className="font-medium text-sm" style={{ color: currentColors.text }}>{item.service}</div>
+                  <div className="text-xs font-mono tabular-nums" style={{ color: currentColors.textSecondary }}>{item.percentage}% of total</div>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {getTrendIcon(item.trend)}
                 <div className="text-right">
-                  <div className="font-semibold text-lg" style={{ color: currentColors.text }}>
+                  <div className="font-semibold text-sm font-mono tabular-nums" style={{ color: currentColors.text }}>
                     ${item.cost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </div>
                 </div>

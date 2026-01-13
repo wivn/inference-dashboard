@@ -34,7 +34,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [colorScheme, setColorSchemeState] = useState<ColorSchemeName>(() => {
     const saved = localStorage.getItem('color-scheme');
     if (saved && saved in colorSchemes) return saved as ColorSchemeName;
-    return 'cyberpunk';
+    return 'slate';
   });
 
   const currentColors = colorSchemes[colorScheme][mode];
@@ -65,6 +65,9 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     root.style.setProperty('--color-border', currentColors.border);
     root.style.setProperty('--color-text', currentColors.text);
     root.style.setProperty('--color-text-secondary', currentColors.textSecondary);
+    root.style.setProperty('--color-success', currentColors.success);
+    root.style.setProperty('--color-warning', currentColors.warning);
+    root.style.setProperty('--color-error', currentColors.error);
 
     // Update class for Tailwind
     if (mode === 'dark') {
