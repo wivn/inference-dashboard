@@ -220,13 +220,15 @@ const ArchitectureDiagram: React.FC<ArchitectureDiagramProps> = ({ data }) => {
     data: node.data,
   }));
 
-  const flowEdges: Edge[] = useMemo(() =>
-    data.edges.map((edge) => ({
+  const flowEdges: Edge[] = useMemo(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+    return data.edges.map((edge) => ({
       id: edge.id,
       source: edge.source,
       target: edge.target,
       animated: edge.animated,
-      label: edge.label,
+      label: isMobile ? undefined : edge.label, // Hide labels on mobile
       type: 'smoothstep',
       markerEnd: {
         type: MarkerType.ArrowClosed,
@@ -236,18 +238,17 @@ const ArchitectureDiagram: React.FC<ArchitectureDiagramProps> = ({ data }) => {
         stroke: edge.animated ? currentColors.primary : currentColors.secondary,
         strokeWidth: edge.animated ? 3 : 2,
       },
-      labelStyle: {
+      labelStyle: isMobile ? undefined : {
         fill: currentColors.textSecondary,
-        fontSize: 11,
+        fontSize: 10,
         fontWeight: 500,
       },
-      labelBgStyle: {
+      labelBgStyle: isMobile ? undefined : {
         fill: currentColors.card,
         fillOpacity: 0.9,
       },
-    })),
-    [data.edges, currentColors]
-  );
+    }));
+  }, [data.edges, currentColors]);
 
   const [nodes, , onNodesChange] = useNodesState(flowNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(flowEdges);

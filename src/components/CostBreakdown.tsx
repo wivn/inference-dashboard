@@ -122,7 +122,11 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
-                label={(props: any) => `${props.service}: ${props.percentage}%`}
+                label={(props: any) => {
+                  // Hide labels on small screens, show only on larger screens
+                  if (window.innerWidth < 640) return null;
+                  return `${props.service}: ${props.percentage}%`;
+                }}
                 labelLine={{ stroke: currentColors.border, strokeWidth: 1 }}
               >
                 {data.costBreakdown.map((entry, index) => (
@@ -135,6 +139,7 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
                   border: `1px solid ${currentColors.border}`,
                   borderRadius: '8px',
                   color: currentColors.text,
+                  fontSize: '12px',
                 }}
                 labelStyle={{ color: currentColors.text }}
                 itemStyle={{ color: currentColors.text }}
