@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useMemo } from 'react';
 import ReactFlow, {
   type Node,
   type Edge,
@@ -220,22 +220,17 @@ const ArchitectureDiagram: React.FC<ArchitectureDiagramProps> = ({ data }) => {
     data: node.data,
   }));
 
-  const [nodes, , onNodesChange] = useNodesState(flowNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
-  // Update edges when theme changes
-  useEffect(() => {
-    const flowEdges: Edge[] = data.edges.map((edge) => ({
+  const flowEdges: Edge[] = useMemo(() =>
+    data.edges.map((edge) => ({
       id: edge.id,
       source: edge.source,
       target: edge.target,
       animated: edge.animated,
       label: edge.label,
+      type: 'smoothstep',
       markerEnd: {
         type: MarkerType.ArrowClosed,
         color: edge.animated ? currentColors.primary : currentColors.secondary,
-        width: 20,
-        height: 20,
       },
       style: {
         stroke: edge.animated ? currentColors.primary : currentColors.secondary,
@@ -250,9 +245,12 @@ const ArchitectureDiagram: React.FC<ArchitectureDiagramProps> = ({ data }) => {
         fill: currentColors.card,
         fillOpacity: 0.9,
       },
-    }));
-    setEdges(flowEdges);
-  }, [data.edges, currentColors, setEdges]);
+    })),
+    [data.edges, currentColors]
+  );
+
+  const [nodes, , onNodesChange] = useNodesState(flowNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(flowEdges);
 
   const onConnect = useCallback(
     (params: any) => setEdges((eds) => [...eds, params]),
@@ -294,6 +292,10 @@ const ArchitectureDiagram: React.FC<ArchitectureDiagramProps> = ({ data }) => {
             nodeTypes={nodeTypes}
             fitView
             attributionPosition="bottom-left"
+            defaultEdgeOptions={{
+              type: 'default',
+              markerEnd: { type: MarkerType.ArrowClosed },
+            }}
             style={{
               background: currentColors.bg,
             }}
