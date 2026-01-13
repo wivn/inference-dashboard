@@ -8,6 +8,8 @@ import ReactFlow, {
   useEdgesState,
   MarkerType,
   BackgroundVariant,
+  Handle,
+  Position,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { motion } from 'framer-motion';
@@ -76,56 +78,64 @@ const CustomNode = ({ data }: { data: InfrastructureNode['data'] }) => {
   const statusColor = getStatusColor(data.status);
 
   return (
-    <motion.div
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      whileHover={{ scale: 1.05 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
-      className="px-4 py-3 rounded-xl border-2 backdrop-blur-md shadow-xl min-w-[200px]"
-      style={{
-        borderColor: statusColor,
-        backgroundColor: currentColors.card,
-        color: currentColors.text,
-        transform: 'translateZ(0)'
-      }}
-    >
-      <div className="flex items-center gap-3 mb-2">
-        <div className="p-2 rounded-lg" style={{ backgroundColor: `${currentColors.primary}20` }}>
-          {getServiceIcon(data.label.toLowerCase())}
+    <>
+      {/* Connection handles for edges */}
+      <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
+      <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Left} style={{ opacity: 0 }} />
+      <Handle type="source" position={Position.Right} style={{ opacity: 0 }} />
+
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
+        className="px-4 py-3 rounded-xl border-2 backdrop-blur-md shadow-xl min-w-[200px]"
+        style={{
+          borderColor: statusColor,
+          backgroundColor: currentColors.card,
+          color: currentColors.text,
+          transform: 'translateZ(0)'
+        }}
+      >
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 rounded-lg" style={{ backgroundColor: `${currentColors.primary}20` }}>
+            {getServiceIcon(data.label.toLowerCase())}
+          </div>
+          <div className="flex-1">
+            <div className="font-semibold text-sm">{data.label}</div>
+            <div className="text-xs" style={{ color: currentColors.textSecondary }}>{data.description}</div>
+          </div>
         </div>
-        <div className="flex-1">
-          <div className="font-semibold text-sm">{data.label}</div>
-          <div className="text-xs" style={{ color: currentColors.textSecondary }}>{data.description}</div>
-        </div>
-      </div>
-      {data.metrics && (
-        <div className="flex gap-2 mt-2 pt-2 border-t" style={{ borderColor: currentColors.border }}>
-          {data.metrics.requests && (
-            <div className="text-xs">
-              <span style={{ color: currentColors.textSecondary }}>Req:</span>{' '}
-              <span className="font-medium" style={{ color: currentColors.secondary }}>
-                {(data.metrics.requests / 1000).toFixed(0)}k
-              </span>
-            </div>
-          )}
-          {data.metrics.latency && (
-            <div className="text-xs">
-              <span style={{ color: currentColors.textSecondary }}>Lat:</span>{' '}
-              <span className="font-medium" style={{ color: currentColors.primary }}>{data.metrics.latency}ms</span>
-            </div>
-          )}
-          {data.metrics.uptime && (
-            <div className="text-xs">
-              <span style={{ color: currentColors.textSecondary }}>Up:</span>{' '}
-              <span className="text-green-400 font-medium">{data.metrics.uptime}%</span>
-            </div>
-          )}
-        </div>
-      )}
-      <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse"
-        style={{ backgroundColor: statusColor }}
-      />
-    </motion.div>
+        {data.metrics && (
+          <div className="flex gap-2 mt-2 pt-2 border-t" style={{ borderColor: currentColors.border }}>
+            {data.metrics.requests && (
+              <div className="text-xs">
+                <span style={{ color: currentColors.textSecondary }}>Req:</span>{' '}
+                <span className="font-medium" style={{ color: currentColors.secondary }}>
+                  {(data.metrics.requests / 1000).toFixed(0)}k
+                </span>
+              </div>
+            )}
+            {data.metrics.latency && (
+              <div className="text-xs">
+                <span style={{ color: currentColors.textSecondary }}>Lat:</span>{' '}
+                <span className="font-medium" style={{ color: currentColors.primary }}>{data.metrics.latency}ms</span>
+              </div>
+            )}
+            {data.metrics.uptime && (
+              <div className="text-xs">
+                <span style={{ color: currentColors.textSecondary }}>Up:</span>{' '}
+                <span className="text-green-400 font-medium">{data.metrics.uptime}%</span>
+              </div>
+            )}
+          </div>
+        )}
+        <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse"
+          style={{ backgroundColor: statusColor }}
+        />
+      </motion.div>
+    </>
   );
 };
 
