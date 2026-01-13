@@ -27,22 +27,22 @@ function App() {
       <div className="relative">
         {/* Header */}
         <header className="border-b" style={{ borderColor: currentColors.border, backgroundColor: currentColors.card }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-14 sm:h-16">
               <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.15, ease: [0.25, 1, 0.5, 1] }}
-                className="flex items-center gap-3"
+                className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1"
               >
-                <div className="p-2 rounded-md border" style={{ borderColor: currentColors.border, backgroundColor: currentColors.bg }}>
-                  <Activity className="w-5 h-5" style={{ color: currentColors.primary }} />
+                <div className="p-1.5 sm:p-2 rounded-md border flex-shrink-0" style={{ borderColor: currentColors.border, backgroundColor: currentColors.bg }}>
+                  <Activity className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentColors.primary }} />
                 </div>
-                <div>
-                  <h1 className="text-xl font-semibold tracking-tight" style={{ color: currentColors.text }}>
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-sm sm:text-lg md:text-xl font-semibold tracking-tight truncate" style={{ color: currentColors.text }}>
                     AWS Inference Dashboard
                   </h1>
-                  <p className="text-xs" style={{ color: currentColors.textSecondary }}>Real-time monitoring & analytics</p>
+                  <p className="text-xs hidden sm:block" style={{ color: currentColors.textSecondary }}>Real-time monitoring & analytics</p>
                 </div>
               </motion.div>
 
@@ -50,11 +50,11 @@ function App() {
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.15, ease: [0.25, 1, 0.5, 1] }}
-                className="flex items-center gap-3"
+                className="flex items-center gap-2 sm:gap-3 flex-shrink-0"
               >
                 <button
                   onClick={() => setSettingsOpen(true)}
-                  className="p-2 rounded-md border transition-all duration-150 hover:bg-opacity-50"
+                  className="p-1.5 sm:p-2 rounded-md border transition-all duration-150 hover:bg-opacity-50"
                   style={{
                     borderColor: currentColors.border,
                     color: currentColors.textSecondary,
@@ -64,7 +64,7 @@ function App() {
                 >
                   <Settings className="w-4 h-4" />
                 </button>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border text-xs font-medium" style={{
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md border text-xs font-medium" style={{
                   borderColor: currentColors.border,
                   color: currentColors.success,
                   backgroundColor: `${currentColors.success}08`
@@ -79,8 +79,8 @@ function App() {
 
         {/* Navigation Tabs */}
         <div className="border-b" style={{ borderColor: currentColors.border, backgroundColor: currentColors.card }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex gap-1 py-1">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div className="flex gap-1 py-1.5 sm:py-2">
               {tabs.map((tab, index) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -91,15 +91,15 @@ function App() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.1, delay: index * 0.03, ease: [0.25, 1, 0.5, 1] }}
                     onClick={() => setActiveTab(tab.id)}
-                    className="relative px-4 py-2 font-medium text-sm transition-all duration-150 flex items-center gap-2 rounded-md border"
+                    className="relative px-3 sm:px-4 py-1.5 sm:py-2 font-medium text-xs sm:text-sm transition-all duration-150 flex items-center gap-1.5 sm:gap-2 rounded-md border"
                     style={{
                       color: isActive ? currentColors.text : currentColors.textSecondary,
                       backgroundColor: isActive ? currentColors.bg : 'transparent',
                       borderColor: isActive ? currentColors.border : 'transparent'
                     }}
                   >
-                    <Icon className="w-4 h-4" />
-                    {tab.label}
+                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="whitespace-nowrap">{tab.label}</span>
                   </motion.button>
                 );
               })}
@@ -108,7 +108,7 @@ function App() {
         </div>
 
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
           <AnimatePresence mode="wait">
             {activeTab === 'costs' && (
               <motion.div
@@ -138,10 +138,10 @@ function App() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t mt-12" style={{ borderColor: currentColors.border, backgroundColor: currentColors.card }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex items-center justify-between text-xs" style={{ color: currentColors.textSecondary }}>
-              <div>
+        <footer className="border-t mt-8 sm:mt-12" style={{ borderColor: currentColors.border, backgroundColor: currentColors.card }}>
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" style={{ color: currentColors.textSecondary }}>
+              <div className="text-center sm:text-left">
                 Built with React + TypeScript + Tailwind CSS
               </div>
               <div className="flex items-center gap-2">
