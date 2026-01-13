@@ -216,19 +216,22 @@ const ArchitectureDiagram: React.FC<ArchitectureDiagramProps> = ({ data }) => {
     label: edge.label,
     markerEnd: {
       type: MarkerType.ArrowClosed,
-      color: currentColors.border,
+      color: edge.animated ? currentColors.primary : currentColors.secondary,
+      width: 20,
+      height: 20,
     },
     style: {
-      stroke: edge.animated ? currentColors.primary : currentColors.border,
-      strokeWidth: edge.animated ? 2 : 1,
+      stroke: edge.animated ? currentColors.primary : currentColors.secondary,
+      strokeWidth: edge.animated ? 3 : 2,
     },
     labelStyle: {
       fill: currentColors.textSecondary,
-      fontSize: 10,
+      fontSize: 11,
+      fontWeight: 500,
     },
     labelBgStyle: {
       fill: currentColors.card,
-      fillOpacity: 0.8,
+      fillOpacity: 0.9,
     },
   }));
 

@@ -2,23 +2,25 @@ import { motion } from 'framer-motion';
 import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { TrendingUp, TrendingDown, Minus, DollarSign, AlertCircle } from 'lucide-react';
 import type { BudgetData } from '../types';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface CostBreakdownProps {
   data: BudgetData;
 }
 
 const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
+  const { currentColors } = useTheme();
   const budgetUsagePercentage = (data.totalCost / data.budget) * 100;
   const isOverBudget = budgetUsagePercentage > 100;
 
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
       case 'up':
-        return <TrendingUp className="w-4 h-4 text-red-400" />;
+        return <TrendingUp className="w-4 h-4 text-red-500" />;
       case 'down':
-        return <TrendingDown className="w-4 h-4 text-green-400" />;
+        return <TrendingDown className="w-4 h-4 text-green-500" />;
       case 'stable':
-        return <Minus className="w-4 h-4 text-blue-400" />;
+        return <Minus className="w-4 h-4" style={{ color: currentColors.secondary }} />;
     }
   };
 
@@ -30,32 +32,40 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="glass-effect rounded-2xl p-6 card-hover"
+          className="rounded-2xl p-6 transition-all hover:scale-[1.02]"
+          style={{
+            backgroundColor: currentColors.card,
+            border: `1px solid ${currentColors.border}`,
+          }}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-400 text-sm">Total Spend</span>
-            <DollarSign className="w-5 h-5 text-cyber-purple" />
+            <span className="text-sm" style={{ color: currentColors.textSecondary }}>Total Spend</span>
+            <DollarSign className="w-5 h-5" style={{ color: currentColors.primary }} />
           </div>
-          <div className="text-3xl font-bold glow-text">
+          <div className="text-3xl font-bold" style={{ color: currentColors.text }}>
             ${data.totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
-          <div className="text-xs text-gray-500 mt-1">This month</div>
+          <div className="text-xs mt-1" style={{ color: currentColors.textSecondary }}>This month</div>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className={`glass-effect rounded-2xl p-6 card-hover ${isOverBudget ? 'border-red-500/30' : ''}`}
+          className="rounded-2xl p-6 transition-all hover:scale-[1.02]"
+          style={{
+            backgroundColor: currentColors.card,
+            border: `1px solid ${isOverBudget ? '#ef4444' : currentColors.border}`,
+          }}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-400 text-sm">Budget Usage</span>
-            {isOverBudget && <AlertCircle className="w-5 h-5 text-red-400" />}
+            <span className="text-sm" style={{ color: currentColors.textSecondary }}>Budget Usage</span>
+            {isOverBudget && <AlertCircle className="w-5 h-5 text-red-500" />}
           </div>
-          <div className={`text-3xl font-bold ${isOverBudget ? 'text-red-400' : 'text-green-400'}`}>
+          <div className={`text-3xl font-bold ${isOverBudget ? 'text-red-500' : 'text-green-500'}`}>
             {budgetUsagePercentage.toFixed(1)}%
           </div>
-          <div className="text-xs text-gray-500 mt-1">
+          <div className="text-xs mt-1" style={{ color: currentColors.textSecondary }}>
             ${data.budget.toLocaleString()} budget
           </div>
         </motion.div>
@@ -64,16 +74,20 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="glass-effect rounded-2xl p-6 card-hover"
+          className="rounded-2xl p-6 transition-all hover:scale-[1.02]"
+          style={{
+            backgroundColor: currentColors.card,
+            border: `1px solid ${currentColors.border}`,
+          }}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-400 text-sm">Remaining</span>
-            <DollarSign className="w-5 h-5 text-cyber-blue" />
+            <span className="text-sm" style={{ color: currentColors.textSecondary }}>Remaining</span>
+            <DollarSign className="w-5 h-5" style={{ color: currentColors.secondary }} />
           </div>
-          <div className={`text-3xl font-bold ${isOverBudget ? 'text-red-400' : 'text-cyber-blue'}`}>
+          <div className={`text-3xl font-bold`} style={{ color: isOverBudget ? '#ef4444' : currentColors.secondary }}>
             ${Math.abs(data.budget - data.totalCost).toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
-          <div className="text-xs text-gray-500 mt-1">
+          <div className="text-xs mt-1" style={{ color: currentColors.textSecondary }}>
             {isOverBudget ? 'Over budget' : 'Available'}
           </div>
         </motion.div>
@@ -86,10 +100,16 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="glass-effect rounded-2xl p-6"
+          className="rounded-2xl p-6"
+          style={{
+            backgroundColor: currentColors.card,
+            border: `1px solid ${currentColors.border}`,
+          }}
         >
           <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <span className="bg-gradient-to-r from-cyber-purple to-cyber-blue bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r bg-clip-text text-transparent" style={{
+              backgroundImage: `linear-gradient(to right, ${currentColors.primary}, ${currentColors.secondary})`
+            }}>
               Cost Distribution
             </span>
           </h3>
@@ -103,7 +123,7 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
                 cy="50%"
                 outerRadius={100}
                 label={(props: any) => `${props.service}: ${props.percentage}%`}
-                labelLine={{ stroke: '#666', strokeWidth: 1 }}
+                labelLine={{ stroke: currentColors.border, strokeWidth: 1 }}
               >
                 {data.costBreakdown.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
@@ -111,10 +131,13 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
               </Pie>
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#1a1a24',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  backgroundColor: currentColors.card,
+                  border: `1px solid ${currentColors.border}`,
                   borderRadius: '8px',
+                  color: currentColors.text,
                 }}
+                labelStyle={{ color: currentColors.text }}
+                itemStyle={{ color: currentColors.text }}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -125,10 +148,16 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
-          className="glass-effect rounded-2xl p-6"
+          className="rounded-2xl p-6"
+          style={{
+            backgroundColor: currentColors.card,
+            border: `1px solid ${currentColors.border}`,
+          }}
         >
           <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <span className="bg-gradient-to-r from-cyber-pink to-cyber-orange bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r bg-clip-text text-transparent" style={{
+              backgroundImage: `linear-gradient(to right, ${currentColors.accent}, ${currentColors.tertiary})`
+            }}>
               30-Day Trend
             </span>
           </h3>
@@ -136,37 +165,40 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
             <AreaChart data={data.timeSeriesData}>
               <defs>
                 <linearGradient id="colorCost" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#9333ea" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#9333ea" stopOpacity={0} />
+                  <stop offset="5%" stopColor={currentColors.primary} stopOpacity={0.8} />
+                  <stop offset="95%" stopColor={currentColors.primary} stopOpacity={0} />
                 </linearGradient>
               </defs>
               <XAxis
                 dataKey="date"
-                stroke="#666"
-                tick={{ fill: '#999' }}
+                stroke={currentColors.border}
+                tick={{ fill: currentColors.textSecondary }}
                 tickFormatter={(value) => {
                   const date = new Date(value);
                   return `${date.getMonth() + 1}/${date.getDate()}`;
                 }}
               />
               <YAxis
-                stroke="#666"
-                tick={{ fill: '#999' }}
+                stroke={currentColors.border}
+                tick={{ fill: currentColors.textSecondary }}
                 tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#1a1a24',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  backgroundColor: currentColors.card,
+                  border: `1px solid ${currentColors.border}`,
                   borderRadius: '8px',
+                  color: currentColors.text,
                 }}
+                labelStyle={{ color: currentColors.text }}
+                itemStyle={{ color: currentColors.text }}
                 formatter={(value: number | undefined) => [`$${value?.toFixed(2) ?? '0'}`, 'Cost']}
                 labelFormatter={(label) => new Date(label).toLocaleDateString()}
               />
               <Area
                 type="monotone"
                 dataKey="cost"
-                stroke="#9333ea"
+                stroke={currentColors.primary}
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#colorCost)"
@@ -181,9 +213,13 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="glass-effect rounded-2xl p-6"
+        className="rounded-2xl p-6"
+        style={{
+          backgroundColor: currentColors.card,
+          border: `1px solid ${currentColors.border}`,
+        }}
       >
-        <h3 className="text-xl font-semibold mb-4">Service Breakdown</h3>
+        <h3 className="text-xl font-semibold mb-4" style={{ color: currentColors.text }}>Service Breakdown</h3>
         <div className="space-y-3">
           {data.costBreakdown.map((item, index) => (
             <motion.div
@@ -191,7 +227,11 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.7 + index * 0.05 }}
-              className="flex items-center justify-between p-4 bg-dark-card/50 rounded-xl hover:bg-dark-card/80 transition-colors"
+              className="flex items-center justify-between p-4 rounded-xl transition-all hover:scale-[1.01]"
+              style={{
+                backgroundColor: `${currentColors.primary}08`,
+                border: `1px solid ${currentColors.border}`,
+              }}
             >
               <div className="flex items-center gap-3 flex-1">
                 <div
@@ -199,14 +239,14 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
                   style={{ backgroundColor: item.color }}
                 />
                 <div className="flex-1">
-                  <div className="font-medium">{item.service}</div>
-                  <div className="text-sm text-gray-400">{item.percentage}% of total</div>
+                  <div className="font-medium" style={{ color: currentColors.text }}>{item.service}</div>
+                  <div className="text-sm" style={{ color: currentColors.textSecondary }}>{item.percentage}% of total</div>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 {getTrendIcon(item.trend)}
                 <div className="text-right">
-                  <div className="font-semibold text-lg">
+                  <div className="font-semibold text-lg" style={{ color: currentColors.text }}>
                     ${item.cost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </div>
                 </div>
