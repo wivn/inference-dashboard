@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - master
+      - claude/aws-dashboard-frontend-DfjpJ
   workflow_dispatch:
 
 permissions:
