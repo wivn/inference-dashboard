@@ -46,7 +46,21 @@ export interface InfrastructureEdge {
   label?: string;
 }
 
+export interface IsolatedService {
+  id: string;
+  type: 'ec2' | 'lambda' | 'rds' | 'elb' | 's3' | 'api-gateway' | 'cloudfront' | 'dynamodb' | 'sqs' | 'sns';
+  label: string;
+  description: string;
+  status: 'healthy' | 'warning' | 'error';
+  metrics?: {
+    requests?: number;
+    latency?: number;
+    uptime?: number;
+  };
+}
+
 export interface ArchitectureDiagramData {
   nodes: InfrastructureNode[];
   edges: InfrastructureEdge[];
+  isolatedServices: IsolatedService[];
 }

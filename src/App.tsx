@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DollarSign, Network, Activity, Sparkles } from 'lucide-react';
+import { DollarSign, Network, Activity, Sparkles, Settings } from 'lucide-react';
 import CostBreakdown from './components/CostBreakdown';
 import ArchitectureDiagram from './components/ArchitectureDiagram';
+import SettingsPanel from './components/SettingsPanel';
 import { getMockBudgetData, getMockArchitectureData } from './data/mockData';
+import { useTheme } from './contexts/ThemeContext';
 
 type Tab = 'costs' | 'architecture';
 
@@ -11,12 +13,8 @@ function App() {
   const [activeTab, setActiveTab] = useState<Tab>('costs');
   const [budgetData] = useState(getMockBudgetData());
   const [architectureData] = useState(getMockArchitectureData());
-  const [time, setTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { currentColors } = useTheme();
 
   const tabs = [
     { id: 'costs' as Tab, label: 'Cost Analytics', icon: DollarSign },
@@ -24,18 +22,18 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white">
+    <div className="min-h-screen transition-colors duration-300" style={{ backgroundColor: currentColors.bg, color: currentColors.text }}>
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 -left-40 w-80 h-80 bg-cyber-purple/20 rounded-full blur-3xl animate-pulse-slow" />
-        <div className="absolute top-40 right-0 w-96 h-96 bg-cyber-blue/20 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-cyber-pink/20 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-0 -left-40 w-80 h-80 rounded-full blur-3xl animate-pulse-slow" style={{ backgroundColor: `${currentColors.primary}20` }} />
+        <div className="absolute top-40 right-0 w-96 h-96 rounded-full blur-3xl animate-pulse-slow" style={{ backgroundColor: `${currentColors.secondary}20`, animationDelay: '1s' }} />
+        <div className="absolute bottom-0 left-1/2 w-96 h-96 rounded-full blur-3xl animate-pulse-slow" style={{ backgroundColor: `${currentColors.accent}20`, animationDelay: '2s' }} />
       </div>
 
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
-        <header className="border-b border-dark-border backdrop-blur-xl bg-dark-card/30">
+        <header className="border-b backdrop-blur-xl" style={{ borderColor: currentColors.border, backgroundColor: `${currentColors.card}30` }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-20">
               <motion.div
@@ -44,14 +42,16 @@ function App() {
                 className="flex items-center gap-3"
               >
                 <div className="relative">
-                  <Activity className="w-10 h-10 text-cyber-purple" />
-                  <Sparkles className="w-4 h-4 text-cyber-pink absolute -top-1 -right-1 animate-pulse" />
+                  <Activity className="w-10 h-10" style={{ color: currentColors.primary }} />
+                  <Sparkles className="w-4 h-4 absolute -top-1 -right-1 animate-pulse" style={{ color: currentColors.accent }} />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-cyber-purple via-cyber-blue to-cyber-pink bg-clip-text text-transparent">
+                  <h1 className="text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent" style={{
+                    backgroundImage: `linear-gradient(to right, ${currentColors.primary}, ${currentColors.secondary}, ${currentColors.accent})`
+                  }}>
                     AWS Inference Dashboard
                   </h1>
-                  <p className="text-xs text-gray-400">Real-time monitoring & analytics</p>
+                  <p className="text-xs" style={{ color: currentColors.textSecondary }}>Real-time monitoring & analytics</p>
                 </div>
               </motion.div>
 
@@ -60,14 +60,14 @@ function App() {
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center gap-4"
               >
-                <div className="text-right">
-                  <div className="text-sm font-medium">
-                    {time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    {time.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </div>
-                </div>
+                <button
+                  onClick={() => setSettingsOpen(true)}
+                  className="p-2 rounded-lg transition-all hover:scale-110"
+                  style={{ backgroundColor: `${currentColors.primary}20`, color: currentColors.primary }}
+                  title="Settings"
+                >
+                  <Settings className="w-5 h-5" />
+                </button>
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="System Online" />
               </motion.div>
             </div>
@@ -75,7 +75,7 @@ function App() {
         </header>
 
         {/* Navigation Tabs */}
-        <div className="border-b border-dark-border backdrop-blur-xl bg-dark-card/20">
+        <div className="border-b backdrop-blur-xl" style={{ borderColor: currentColors.border, backgroundColor: `${currentColors.card}20` }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex gap-2 py-4">
               {tabs.map((tab, index) => {
@@ -88,19 +88,19 @@ function App() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`
-                      relative px-6 py-3 rounded-xl font-medium transition-all duration-300
-                      flex items-center gap-2
-                      ${isActive
-                        ? 'text-white'
-                        : 'text-gray-400 hover:text-white hover:bg-dark-card/50'
-                      }
-                    `}
+                    className="relative px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2"
+                    style={{
+                      color: isActive ? currentColors.text : currentColors.textSecondary,
+                      backgroundColor: isActive ? 'transparent' : 'transparent'
+                    }}
                   >
                     {isActive && (
                       <motion.div
                         layoutId="activeTab"
-                        className="absolute inset-0 bg-gradient-to-r from-cyber-purple to-cyber-blue rounded-xl"
+                        className="absolute inset-0 rounded-xl"
+                        style={{
+                          background: `linear-gradient(to right, ${currentColors.primary}, ${currentColors.secondary})`
+                        }}
                         transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                       />
                     )}
@@ -144,9 +144,9 @@ function App() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t border-dark-border backdrop-blur-xl bg-dark-card/20 mt-12">
+        <footer className="border-t backdrop-blur-xl mt-12" style={{ borderColor: currentColors.border, backgroundColor: `${currentColors.card}20` }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex items-center justify-between text-sm text-gray-400">
+            <div className="flex items-center justify-between text-sm" style={{ color: currentColors.textSecondary }}>
               <div>
                 Built with React + TypeScript + Tailwind CSS
               </div>
@@ -158,6 +158,9 @@ function App() {
           </div>
         </footer>
       </div>
+
+      {/* Settings Panel */}
+      <SettingsPanel isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 }

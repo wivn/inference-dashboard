@@ -1,4 +1,4 @@
-import type { BudgetData, ArchitectureDiagramData, InfrastructureNode, InfrastructureEdge } from '../types';
+import type { BudgetData, ArchitectureDiagramData, InfrastructureNode, InfrastructureEdge, IsolatedService } from '../types';
 
 export const getMockBudgetData = (): BudgetData => {
   const services = [
@@ -143,5 +143,39 @@ export const getMockArchitectureData = (): ArchitectureDiagramData => {
     { id: 'e9', source: 'lambda-1', target: 'sns-1', label: 'Notify' },
   ];
 
-  return { nodes, edges };
+  const isolatedServices: IsolatedService[] = [
+    {
+      id: 'rds-1',
+      type: 'rds',
+      label: 'Analytics Database',
+      description: 'RDS PostgreSQL for analytics',
+      status: 'healthy',
+      metrics: { latency: 25, uptime: 99.95 },
+    },
+    {
+      id: 's3-2',
+      type: 's3',
+      label: 'Logs Bucket',
+      description: 'Centralized logging storage',
+      status: 'healthy',
+    },
+    {
+      id: 'lambda-3',
+      type: 'lambda',
+      label: 'Cleanup Function',
+      description: 'Scheduled cleanup tasks',
+      status: 'healthy',
+      metrics: { requests: 144, latency: 450 },
+    },
+    {
+      id: 'ec2-2',
+      type: 'ec2',
+      label: 'Monitoring Instance',
+      description: 'CloudWatch agent',
+      status: 'healthy',
+      metrics: { uptime: 99.8 },
+    },
+  ];
+
+  return { nodes, edges, isolatedServices };
 };
