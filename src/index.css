@@ -41,7 +41,23 @@
   }
 
   .card-hover {
-    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl;
+    @apply transition-all duration-200 hover:scale-[1.02] hover:shadow-2xl;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  /* GPU acceleration for animations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  /* Optimize backdrop blur for mobile */
+  @media (max-width: 768px) {
+    .backdrop-blur-xl {
+      backdrop-filter: blur(4px) !important;
+    }
   }
 }
 

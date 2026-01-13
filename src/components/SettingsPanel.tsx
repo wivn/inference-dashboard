@@ -29,7 +29,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose }) => {
             initial={{ x: 400, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 400, opacity: 0 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 400, mass: 0.8 }}
             className="fixed right-0 top-0 h-full w-full max-w-md z-50 shadow-2xl"
             style={{
               backgroundColor: currentColors.card,

@@ -77,14 +77,16 @@ const CustomNode = ({ data }: { data: InfrastructureNode['data'] }) => {
 
   return (
     <motion.div
-      initial={{ scale: 0, opacity: 0 }}
+      initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       whileHover={{ scale: 1.05 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
       className="px-4 py-3 rounded-xl border-2 backdrop-blur-md shadow-xl min-w-[200px]"
       style={{
         borderColor: statusColor,
         backgroundColor: currentColors.card,
         color: currentColors.text,
+        transform: 'translateZ(0)'
       }}
     >
       <div className="flex items-center gap-3 mb-2">
@@ -137,9 +139,9 @@ const IsolatedServiceCard: React.FC<{ service: IsolatedService; index: number }>
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 20 }}
+      initial={{ opacity: 0, x: 10 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.05 }}
+      transition={{ duration: 0.15, delay: index * 0.03, ease: 'easeOut' }}
       className="p-4 rounded-xl border transition-all hover:scale-[1.02]"
       style={{
         backgroundColor: currentColors.card,
@@ -247,8 +249,9 @@ const ArchitectureDiagram: React.FC<ArchitectureDiagramProps> = ({ data }) => {
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       {/* Main Flow Diagram */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
         className="lg:col-span-3 rounded-2xl p-6 h-[800px]"
         style={{
           backgroundColor: currentColors.card,
@@ -299,8 +302,9 @@ const ArchitectureDiagram: React.FC<ArchitectureDiagramProps> = ({ data }) => {
 
       {/* Isolated Services Sidebar */}
       <motion.div
-        initial={{ opacity: 0, x: 20 }}
+        initial={{ opacity: 0, x: 10 }}
         animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.2, delay: 0.05, ease: 'easeOut' }}
         className="lg:col-span-1"
       >
         <div className="rounded-2xl p-6 h-[800px] flex flex-col" style={{

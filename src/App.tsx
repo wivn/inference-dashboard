@@ -24,10 +24,10 @@ function App() {
   return (
     <div className="min-h-screen transition-colors duration-300" style={{ backgroundColor: currentColors.bg, color: currentColors.text }}>
       {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 -left-40 w-80 h-80 rounded-full blur-3xl animate-pulse-slow" style={{ backgroundColor: `${currentColors.primary}20` }} />
-        <div className="absolute top-40 right-0 w-96 h-96 rounded-full blur-3xl animate-pulse-slow" style={{ backgroundColor: `${currentColors.secondary}20`, animationDelay: '1s' }} />
-        <div className="absolute bottom-0 left-1/2 w-96 h-96 rounded-full blur-3xl animate-pulse-slow" style={{ backgroundColor: `${currentColors.accent}20`, animationDelay: '2s' }} />
+      <div className="fixed inset-0 overflow-hidden pointer-events-none gpu-accelerated">
+        <div className="absolute top-0 -left-40 w-80 h-80 rounded-full blur-3xl animate-pulse-slow" style={{ backgroundColor: `${currentColors.primary}20`, transform: 'translateZ(0)' }} />
+        <div className="absolute top-40 right-0 w-96 h-96 rounded-full blur-3xl animate-pulse-slow" style={{ backgroundColor: `${currentColors.secondary}20`, animationDelay: '0.7s', transform: 'translateZ(0)' }} />
+        <div className="absolute bottom-0 left-1/2 w-96 h-96 rounded-full blur-3xl animate-pulse-slow" style={{ backgroundColor: `${currentColors.accent}20`, animationDelay: '1.4s', transform: 'translateZ(0)' }} />
       </div>
 
       {/* Content */}
@@ -39,6 +39,7 @@ function App() {
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
                 className="flex items-center gap-3"
               >
                 <div className="relative">
@@ -58,6 +59,7 @@ function App() {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
                 className="flex items-center gap-4"
               >
                 <button
@@ -86,9 +88,9 @@ function App() {
                     key={tab.id}
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ duration: 0.15, delay: index * 0.05, ease: 'easeOut' }}
                     onClick={() => setActiveTab(tab.id)}
-                    className="relative px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2"
+                    className="relative px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-2"
                     style={{
                       color: isActive ? currentColors.text : currentColors.textSecondary,
                       backgroundColor: isActive ? 'transparent' : 'transparent'
@@ -99,9 +101,10 @@ function App() {
                         layoutId="activeTab"
                         className="absolute inset-0 rounded-xl"
                         style={{
-                          background: `linear-gradient(to right, ${currentColors.primary}, ${currentColors.secondary})`
+                          background: `linear-gradient(to right, ${currentColors.primary}, ${currentColors.secondary})`,
+                          transform: 'translateZ(0)'
                         }}
-                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 35, mass: 0.5 }}
                       />
                     )}
                     <span className="relative z-10 flex items-center gap-2">
@@ -121,10 +124,11 @@ function App() {
             {activeTab === 'costs' && (
               <motion.div
                 key="costs"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                style={{ transform: 'translateZ(0)' }}
               >
                 <CostBreakdown data={budgetData} />
               </motion.div>
@@ -132,10 +136,11 @@ function App() {
             {activeTab === 'architecture' && (
               <motion.div
                 key="architecture"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                style={{ transform: 'translateZ(0)' }}
               >
                 <ArchitectureDiagram data={architectureData} />
               </motion.div>

@@ -29,13 +29,14 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ duration: 0.2, delay: 0.05, ease: 'easeOut' }}
           className="rounded-2xl p-6 transition-all hover:scale-[1.02]"
           style={{
             backgroundColor: currentColors.card,
             border: `1px solid ${currentColors.border}`,
+            transform: 'translateZ(0)'
           }}
         >
           <div className="flex items-center justify-between mb-2">
@@ -49,13 +50,14 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ duration: 0.2, delay: 0.08, ease: 'easeOut' }}
           className="rounded-2xl p-6 transition-all hover:scale-[1.02]"
           style={{
             backgroundColor: currentColors.card,
             border: `1px solid ${isOverBudget ? '#ef4444' : currentColors.border}`,
+            transform: 'translateZ(0)'
           }}
         >
           <div className="flex items-center justify-between mb-2">
@@ -71,13 +73,14 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ duration: 0.2, delay: 0.11, ease: 'easeOut' }}
           className="rounded-2xl p-6 transition-all hover:scale-[1.02]"
           style={{
             backgroundColor: currentColors.card,
             border: `1px solid ${currentColors.border}`,
+            transform: 'translateZ(0)'
           }}
         >
           <div className="flex items-center justify-between mb-2">
@@ -97,13 +100,14 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pie Chart */}
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ duration: 0.2, delay: 0.14, ease: 'easeOut' }}
           className="rounded-2xl p-6"
           style={{
             backgroundColor: currentColors.card,
             border: `1px solid ${currentColors.border}`,
+            transform: 'translateZ(0)'
           }}
         >
           <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -145,13 +149,14 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
 
         {/* Area Chart */}
         <motion.div
-          initial={{ opacity: 0, x: 20 }}
+          initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ duration: 0.2, delay: 0.17, ease: 'easeOut' }}
           className="rounded-2xl p-6"
           style={{
             backgroundColor: currentColors.card,
             border: `1px solid ${currentColors.border}`,
+            transform: 'translateZ(0)'
           }}
         >
           <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -210,13 +215,14 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
 
       {/* Service Breakdown List */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
+        transition={{ duration: 0.2, delay: 0.2, ease: 'easeOut' }}
         className="rounded-2xl p-6"
         style={{
           backgroundColor: currentColors.card,
           border: `1px solid ${currentColors.border}`,
+          transform: 'translateZ(0)'
         }}
       >
         <h3 className="text-xl font-semibold mb-4" style={{ color: currentColors.text }}>Service Breakdown</h3>
@@ -224,13 +230,14 @@ const CostBreakdown: React.FC<CostBreakdownProps> = ({ data }) => {
           {data.costBreakdown.map((item, index) => (
             <motion.div
               key={item.service}
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.7 + index * 0.05 }}
+              transition={{ duration: 0.15, delay: 0.23 + index * 0.03, ease: 'easeOut' }}
               className="flex items-center justify-between p-4 rounded-xl transition-all hover:scale-[1.01]"
               style={{
                 backgroundColor: `${currentColors.primary}08`,
                 border: `1px solid ${currentColors.border}`,
+                transform: 'translateZ(0)'
               }}
             >
               <div className="flex items-center gap-3 flex-1">
