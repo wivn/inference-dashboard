@@ -32,148 +32,127 @@ export const getMockBudgetData = (): BudgetData => {
 
 export const getMockArchitectureData = (): ArchitectureDiagramData => {
   const nodes: InfrastructureNode[] = [
+    // Top row - Entry points
     {
       id: 'cf-1',
       type: 'cloudfront',
       data: {
-        label: 'CloudFront Distribution',
-        description: 'CDN for inference API',
+        label: 'CloudFront CDN',
+        description: 'Global edge locations',
         status: 'healthy',
         metrics: { requests: 125000, latency: 45 },
       },
-      position: { x: 400, y: 50 },
+      position: { x: 400, y: 0 },
     },
+    // Second row - Gateway
     {
       id: 'apigw-1',
       type: 'api-gateway',
       data: {
         label: 'API Gateway',
-        description: 'Inference REST API',
+        description: 'REST API endpoint',
         status: 'healthy',
         metrics: { requests: 98000, latency: 120 },
       },
-      position: { x: 400, y: 200 },
+      position: { x: 400, y: 180 },
     },
+    // Third row - Processing
     {
       id: 'lambda-1',
       type: 'lambda',
       data: {
         label: 'Inference Handler',
-        description: 'Main inference logic',
+        description: 'Main processing function',
         status: 'healthy',
         metrics: { requests: 98000, latency: 850 },
       },
-      position: { x: 200, y: 350 },
+      position: { x: 400, y: 360 },
     },
-    {
-      id: 'lambda-2',
-      type: 'lambda',
-      data: {
-        label: 'Model Preprocessor',
-        description: 'Data preprocessing',
-        status: 'healthy',
-        metrics: { requests: 45000, latency: 320 },
-      },
-      position: { x: 600, y: 350 },
-    },
-    {
-      id: 'ec2-1',
-      type: 'ec2',
-      data: {
-        label: 'Model Server',
-        description: 'EC2 GPU Instance',
-        status: 'healthy',
-        metrics: { uptime: 99.9 },
-      },
-      position: { x: 200, y: 500 },
-    },
+    // Fourth row - Support services
     {
       id: 's3-1',
       type: 's3',
       data: {
         label: 'Model Storage',
-        description: 'Model artifacts',
+        description: 'ML model artifacts',
         status: 'healthy',
       },
-      position: { x: 600, y: 500 },
+      position: { x: 100, y: 540 },
+    },
+    {
+      id: 'ec2-1',
+      type: 'ec2',
+      data: {
+        label: 'GPU Server',
+        description: 'Model inference compute',
+        status: 'healthy',
+        metrics: { uptime: 99.9 },
+      },
+      position: { x: 400, y: 540 },
     },
     {
       id: 'dynamodb-1',
       type: 'dynamodb',
       data: {
-        label: 'Inference Cache',
-        description: 'Response caching',
+        label: 'Response Cache',
+        description: 'Fast result lookup',
         status: 'healthy',
         metrics: { requests: 125000, latency: 12 },
       },
-      position: { x: 400, y: 650 },
-    },
-    {
-      id: 'sqs-1',
-      type: 'sqs',
-      data: {
-        label: 'Request Queue',
-        description: 'Async inference queue',
-        status: 'warning',
-        metrics: { requests: 2300 },
-      },
-      position: { x: 100, y: 200 },
-    },
-    {
-      id: 'sns-1',
-      type: 'sns',
-      data: {
-        label: 'Notification Topic',
-        description: 'Inference complete alerts',
-        status: 'healthy',
-      },
-      position: { x: 700, y: 200 },
+      position: { x: 700, y: 540 },
     },
   ];
 
   const edges: InfrastructureEdge[] = [
-    { id: 'e1', source: 'cf-1', target: 'apigw-1', animated: true },
-    { id: 'e2', source: 'apigw-1', target: 'lambda-1', animated: true },
-    { id: 'e3', source: 'apigw-1', target: 'lambda-2', animated: true },
-    { id: 'e4', source: 'lambda-1', target: 'ec2-1', label: 'Inference' },
-    { id: 'e5', source: 'lambda-2', target: 's3-1', label: 'Load model' },
-    { id: 'e6', source: 'lambda-1', target: 'dynamodb-1', label: 'Cache' },
-    { id: 'e7', source: 'lambda-2', target: 'dynamodb-1', label: 'Check cache' },
-    { id: 'e8', source: 'sqs-1', target: 'lambda-1', animated: true, label: 'Async' },
-    { id: 'e9', source: 'lambda-1', target: 'sns-1', label: 'Notify' },
+    // Main request flow - all animated
+    { id: 'e1', source: 'cf-1', target: 'apigw-1', animated: true, label: 'HTTPS Request' },
+    { id: 'e2', source: 'apigw-1', target: 'lambda-1', animated: true, label: 'Invoke' },
+    { id: 'e3', source: 'lambda-1', target: 'ec2-1', animated: true, label: 'Run Model' },
+
+    // Support connections
+    { id: 'e4', source: 's3-1', target: 'lambda-1', label: 'Load Model', animated: false },
+    { id: 'e5', source: 'lambda-1', target: 'dynamodb-1', label: 'Check Cache', animated: false },
+    { id: 'e6', source: 'dynamodb-1', target: 'lambda-1', label: 'Cache Hit', animated: false },
   ];
 
   const isolatedServices: IsolatedService[] = [
     {
       id: 'rds-1',
       type: 'rds',
-      label: 'Analytics Database',
-      description: 'RDS PostgreSQL for analytics',
+      label: 'Analytics DB',
+      description: 'Usage metrics & reporting',
       status: 'healthy',
       metrics: { latency: 25, uptime: 99.95 },
     },
     {
       id: 's3-2',
       type: 's3',
-      label: 'Logs Bucket',
-      description: 'Centralized logging storage',
+      label: 'Logs Archive',
+      description: 'Long-term log storage',
       status: 'healthy',
     },
     {
-      id: 'lambda-3',
+      id: 'sqs-1',
+      type: 'sqs',
+      label: 'Dead Letter Queue',
+      description: 'Failed request handling',
+      status: 'warning',
+      metrics: { requests: 23 },
+    },
+    {
+      id: 'sns-1',
+      type: 'sns',
+      label: 'Alert Topic',
+      description: 'System notifications',
+      status: 'healthy',
+    },
+    {
+      id: 'lambda-monitoring',
       type: 'lambda',
-      label: 'Cleanup Function',
-      description: 'Scheduled cleanup tasks',
+      label: 'Health Check',
+      description: 'Periodic system validation',
       status: 'healthy',
       metrics: { requests: 144, latency: 450 },
-    },
-    {
-      id: 'ec2-2',
-      type: 'ec2',
-      label: 'Monitoring Instance',
-      description: 'CloudWatch agent',
-      status: 'healthy',
-      metrics: { uptime: 99.8 },
     },
   ];
 
