@@ -1,4 +1,6 @@
-// Example YAML app: Push / Pull workout tracker
+// Push / Pull workout tracker — uses only composable list + grid primitives.
+// Demonstrates: nested lists with `as` naming, dot-path expressions,
+// dynamic styles, toggleNestedItem action, and screen overlay.
 
 export const WORKOUT_APP_YAML = `name: Push / Pull
 version: "1.0"
@@ -91,51 +93,54 @@ export const WORKOUT_SCREENS_YAML = `screens:
                 flex: 1
               children:
                 - type: text
-                  value: "REST"
+                  value: REST
                   style:
                     fontSize: 10
                     color: "#0a0a08"
-                    opacity: 0.7
+                    opacity: 0.6
                 - type: heading
                   value: "timeFormat($timerSeconds)"
                   style:
                     fontSize: 40
-                    color: "#0a0a08"
                     fontWeight: bold
-
+                    color: "#0a0a08"
             - type: button
-              label: "+30s"
+              label: +30s
               variant: ghost
               style:
                 borderColor: "rgba(0,0,0,0.2)"
+                borderWidth: 1
               actions:
                 - type: increment
                   variable: timerSeconds
                   amount: 30
-
             - type: button
-              label: "Skip"
+              label: Skip
               variant: ghost
               style:
                 borderColor: "rgba(0,0,0,0.2)"
+                borderWidth: 1
               actions:
                 - type: setState
                   variable: timerActive
                   value: false
 
     layout:
+      # ── Header ──────────────────────────────────────────────
       - type: column
-        gap: 4
+        gap: 8
         style:
-          paddingBottom: 12
+          paddingBottom: 20
           borderBottomWidth: 1
           borderBottomColor: "#2a2823"
+          marginBottom: 4
         children:
           - type: text
-            value: "Solo Day"
+            value: Solo Day
             style:
               fontSize: 11
               color: "#8a8678"
+              fontWeight: "600"
 
           - type: heading
             value: "Push / Pull"
@@ -143,30 +148,90 @@ export const WORKOUT_SCREENS_YAML = `screens:
               fontSize: 48
               fontWeight: bold
               letterSpacing: -2
+              lineHeight: 48
 
           - type: progress
             value: "$completedSets / $totalSets * 100"
             color: "#d4ff3a"
             label: "$completedSets / $totalSets sets"
 
-      - type: spacer
-        size: 20
+      # ── Exercise list ────────────────────────────────────────
+      # Outer list: one item per exercise.
+      # Inner list: one button per set, as: "set" so $set / $setIndex
+      # don't shadow $exercise / $exerciseIndex from the outer loop.
+      - type: list
+        items: "$exercises"
+        as: exercise
+        template:
+          type: column
+          gap: 12
+          style:
+            paddingTop: 20
+            paddingBottom: 20
+            borderBottomWidth: 1
+            borderBottomColor: "#2a2823"
+          children:
+            # Exercise header row
+            - type: row
+              gap: 14
+              children:
+                - type: text
+                  value: "$exerciseIndex + 1"
+                  style:
+                    fontFamily: monospace
+                    fontSize: 13
+                    color: "#8a8678"
+                    fontWeight: "600"
+                    minWidth: 24
+                - type: text
+                  value: "$exercise.name"
+                  style:
+                    fontSize: 20
+                    fontWeight: "600"
+                    flex: 1
+                    letterSpacing: -0.3
 
-      - type: workout
-        exercises: "$exercises"
-        onSetTap:
-          - type: toggleNestedItem
-            variable: exercises
-            outerIndex: "$exerciseIndex"
-            innerField: sets
-            innerIndex: "$setIndex"
-          - type: setState
-            variable: completedSets
-            value: "$completedSets + ($set ? -1 : 1)"
-          - type: setState
-            variable: timerSeconds
-            value: "$exercise.rest"
-          - type: setState
-            variable: timerActive
-            value: "!$set"
+            # Meta line
+            - type: text
+              value: "$exercise.reps · $exercise.rest s rest"
+              style:
+                fontSize: 11
+                color: "#8a8678"
+                fontWeight: "600"
+
+            # Set buttons — inner list over $exercise.sets
+            - type: list
+              items: "$exercise.sets"
+              as: set
+              horizontal: true
+              gap: 10
+              template:
+                type: button
+                label: "$set ? '✓' : $setIndex + 1"
+                style:
+                  width: 64
+                  height: 64
+                  borderRadius: 14
+                  borderWidth: 1
+                  borderColor: "$set ? '#d4ff3a55' : '#2a2823'"
+                  backgroundColor: "$set ? '#d4ff3a14' : 'transparent'"
+                  paddingVertical: 0
+                  paddingHorizontal: 0
+                  alignItems: center
+                  justifyContent: center
+                actions:
+                  - type: toggleNestedItem
+                    variable: exercises
+                    outerIndex: "$exerciseIndex"
+                    innerField: sets
+                    innerIndex: "$setIndex"
+                  - type: setState
+                    variable: completedSets
+                    value: "$completedSets + ($set ? -1 : 1)"
+                  - type: setState
+                    variable: timerSeconds
+                    value: "$exercise.rest"
+                  - type: setState
+                    variable: timerActive
+                    value: "!$set"
 `;

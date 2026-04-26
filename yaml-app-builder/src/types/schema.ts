@@ -60,8 +60,7 @@ export type ComponentType =
   | 'card'
   | 'badge'
   | 'divider'
-  | 'grid'
-  | 'workout'; // specialized exercise + set-button list
+  | 'grid';
 
 export interface ComponentBase {
   type: ComponentType;
@@ -147,8 +146,16 @@ export interface ContainerComponent extends ComponentBase {
 
 export interface ListComponent extends ComponentBase {
   type: 'list';
-  items: string; // expression pointing to array state
-  template: AnyComponent; // $item = current item, $itemIndex = current index
+  items: string;        // expression pointing to an array — supports dot-paths: "$exercise.sets"
+  as?: string;          // name for the loop variable (default "item"); generates $<as> and $<as>Index
+  horizontal?: boolean; // render as a horizontal scroll row (default false)
+  gap?: number;         // gap between items when horizontal (default 0)
+  template: AnyComponent;
+  // Inside the template:
+  //   $<as>      — current item (default $item)
+  //   $<as>Index — current index (default $itemIndex)
+  //   Outer loop variables stay in scope — nested lists don't shadow each other
+  //   when each level uses a different `as` name.
 }
 
 export interface GridComponent extends ComponentBase {
@@ -156,15 +163,6 @@ export interface GridComponent extends ComponentBase {
   columns: number;
   gap?: number;
   children: AnyComponent[];
-}
-
-// Renders an exercise list with grouped set-tap buttons.
-// Each exercise object must have: name, reps, rest, sets (array of booleans).
-// Injects $exerciseIndex, $setIndex, $exercise, $set into action context.
-export interface WorkoutComponent extends ComponentBase {
-  type: 'workout';
-  exercises: string; // "$exercises"
-  onSetTap: TimerAction[];
 }
 
 export type AnyComponent =
@@ -178,8 +176,7 @@ export type AnyComponent =
   | BadgeComponent
   | ContainerComponent
   | ListComponent
-  | GridComponent
-  | WorkoutComponent;
+  | GridComponent;
 
 // A screen-level overlay rendered above the scroll content (e.g. rest timer).
 export interface ScreenOverlay {
