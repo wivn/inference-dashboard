@@ -21,17 +21,24 @@ import type {
   ListComponent,
   BadgeComponent,
   GridComponent,
+  WorkoutComponent,
   TimerAction,
 } from '../types/schema';
 import { evalExpression, evalBool, evalNumber } from '../engine/expressions';
 import { executeActions } from '../engine/runtime';
 
-interface RendererProps {
+export interface RendererProps {
   components: AnyComponent[];
   state: StateMap;
   onStateChange: (patch: Partial<StateMap>) => void;
   onNavigate?: (screen: string) => void;
   theme?: { primary?: string; background?: string; text?: string };
+}
+
+interface ResolvedTheme {
+  primary: string;
+  background: string;
+  text: string;
 }
 
 function resolveStyle(style: ComponentStyle | undefined): object {
@@ -45,7 +52,7 @@ interface ComponentProps {
   onAction: (actions: TimerAction[]) => void;
   onStateChange: (patch: Partial<StateMap>) => void;
   onNavigate?: (screen: string) => void;
-  theme: { primary: string; background: string; text: string };
+  theme: ResolvedTheme;
 }
 
 function RenderComponent({ component, state, onAction, onStateChange, onNavigate, theme }: ComponentProps) {
@@ -97,7 +104,7 @@ function RenderComponent({ component, state, onAction, onStateChange, onNavigate
           style={[
             styles.button,
             { backgroundColor: bgColor, opacity: disabled ? 0.4 : 1 },
-            isGhost && styles.buttonGhost,
+            isGhost && { ...styles.buttonGhost, borderColor: theme.primary },
             customStyle,
           ]}
           disabled={disabled}
@@ -141,7 +148,6 @@ function RenderComponent({ component, state, onAction, onStateChange, onNavigate
           <View style={styles.progressTrack}>
             <View style={[styles.progressFill, { width: `${pct}%` as unknown as number, backgroundColor: color }]} />
           </View>
-          <Text style={[styles.progressPct, { color: theme.text }]}>{Math.round(pct)}%</Text>
         </View>
       );
     }
@@ -199,15 +205,16 @@ function RenderComponent({ component, state, onAction, onStateChange, onNavigate
 
     case 'list': {
       const c = component as ListComponent;
-      const items = (state[c.items.replace(/^\$/, '')] as unknown[]) ?? [];
+      const varName = c.items.replace(/^\$/, '');
+      const items = (state[varName] as unknown[]) ?? [];
       return (
         <FlatList
           data={items}
           keyExtractor={(_, i) => String(i)}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <RenderComponent
               component={c.template}
-              state={{ ...state, item }}
+              state={{ ...state, item, itemIndex: index }}
               onAction={onAction}
               onStateChange={onStateChange}
               onNavigate={onNavigate}
@@ -215,17 +222,7 @@ function RenderComponent({ component, state, onAction, onStateChange, onNavigate
             />
           )}
           style={customStyle as object}
-        />
-      );
-    }
-
-    case 'image': {
-      const c = component as { type: 'image'; src: string; width?: number; height?: number };
-      return (
-        <Image
-          source={{ uri: c.src }}
-          style={[{ width: c.width ?? 200, height: c.height ?? 150 }, customStyle]}
-          resizeMode="contain"
+          scrollEnabled={false}
         />
       );
     }
@@ -234,9 +231,6 @@ function RenderComponent({ component, state, onAction, onStateChange, onNavigate
       const c = component as GridComponent;
       const columns = c.columns ?? 2;
       const gap = c.gap ?? 8;
-      // Each child gets a percentage width based on its span / columns.
-      // We simulate gap by adding half-gap padding to each cell and
-      // negative margin on the container so edges stay flush.
       return (
         <View
           style={[
@@ -264,13 +258,102 @@ function RenderComponent({ component, state, onAction, onStateChange, onNavigate
       );
     }
 
+    case 'workout': {
+      const c = component as WorkoutComponent;
+      const varName = c.exercises.replace(/^\$/, '');
+      const exercises = (state[varName] as Array<{
+        name: string;
+        reps: string;
+        rest: number;
+        sets: boolean[];
+      }>) ?? [];
+
+      return (
+        <View style={customStyle}>
+          {exercises.map((exercise, exerciseIdx) => {
+            const sets: boolean[] = Array.isArray(exercise.sets) ? exercise.sets : [];
+            return (
+              <View key={exerciseIdx} style={workoutStyles.exercise}>
+                {/* Exercise header */}
+                <View style={workoutStyles.exHead}>
+                  <Text style={workoutStyles.exNum}>
+                    {String(exerciseIdx + 1).padStart(2, '0')}
+                  </Text>
+                  <Text style={[workoutStyles.exName, { color: theme.text }]}>
+                    {exercise.name}
+                  </Text>
+                </View>
+                <Text style={workoutStyles.exMeta}>
+                  {sets.length} × {exercise.reps} · {exercise.rest}s rest
+                </Text>
+
+                {/* Set buttons */}
+                <View style={workoutStyles.setsRow}>
+                  {sets.map((setDone, setIdx) => (
+                    <TouchableOpacity
+                      key={setIdx}
+                      style={[
+                        workoutStyles.setBtn,
+                        setDone && {
+                          backgroundColor: theme.primary + '18',
+                          borderColor: theme.primary + '55',
+                        },
+                      ]}
+                      onPress={() => {
+                        const actionState: StateMap = {
+                          ...state,
+                          exerciseIndex: exerciseIdx,
+                          setIndex: setIdx,
+                          exercise,
+                          set: setDone,
+                        };
+                        const patch = executeActions(c.onSetTap, actionState, onNavigate);
+                        if (Object.keys(patch).length > 0) {
+                          onStateChange(patch);
+                        }
+                      }}
+                    >
+                      <Text style={workoutStyles.setBtnLabel}>Set</Text>
+                      <Text
+                        style={[
+                          workoutStyles.setBtnNum,
+                          setDone && { textDecorationLine: 'line-through', color: '#6b7280' },
+                        ]}
+                      >
+                        {setIdx + 1}
+                      </Text>
+                      {setDone && (
+                        <Text style={[workoutStyles.setCheck, { color: theme.primary }]}>✓</Text>
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      );
+    }
+
+    case 'image': {
+      const c = component as { type: 'image'; src: string; width?: number; height?: number };
+      return (
+        <Image
+          source={{ uri: c.src }}
+          style={[{ width: c.width ?? 200, height: c.height ?? 150 }, customStyle]}
+          resizeMode="contain"
+        />
+      );
+    }
+
     default:
       return null;
   }
 }
 
+// Full-page renderer (scroll container).
 export function Renderer({ components, state, onStateChange, onNavigate, theme }: RendererProps) {
-  const resolvedTheme = {
+  const resolvedTheme: ResolvedTheme = {
     primary: theme?.primary ?? '#6366f1',
     background: theme?.background ?? '#ffffff',
     text: theme?.text ?? '#111827',
@@ -303,6 +386,38 @@ export function Renderer({ components, state, onStateChange, onNavigate, theme }
   );
 }
 
+// Inline renderer — no scroll wrapper, for overlays / nested use.
+export function InlineRenderer({ components, state, onStateChange, onNavigate, theme }: RendererProps) {
+  const resolvedTheme: ResolvedTheme = {
+    primary: theme?.primary ?? '#6366f1',
+    background: theme?.background ?? '#ffffff',
+    text: theme?.text ?? '#111827',
+  };
+
+  function handleAction(actions: TimerAction[]) {
+    const patch = executeActions(actions, state, onNavigate);
+    if (Object.keys(patch).length > 0) {
+      onStateChange(patch);
+    }
+  }
+
+  return (
+    <>
+      {components.map((comp, i) => (
+        <RenderComponent
+          key={comp.id ?? i}
+          component={comp}
+          state={state}
+          onAction={handleAction}
+          onStateChange={onStateChange}
+          onNavigate={onNavigate}
+          theme={resolvedTheme}
+        />
+      ))}
+    </>
+  );
+}
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { padding: 16, gap: 12 },
@@ -316,7 +431,6 @@ const styles = StyleSheet.create({
   },
   buttonGhost: {
     borderWidth: 1,
-    borderColor: '#6366f1',
   },
   buttonText: { color: '#ffffff', fontWeight: '600', fontSize: 16 },
   inputWrapper: { gap: 4 },
@@ -328,16 +442,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     fontSize: 16,
   },
-  progressWrapper: { gap: 4 },
-  progressLabel: { fontSize: 14, fontWeight: '600' },
+  progressWrapper: { gap: 6 },
+  progressLabel: { fontSize: 13, fontWeight: '600' },
   progressTrack: {
-    height: 12,
-    backgroundColor: '#e5e7eb',
-    borderRadius: 6,
+    height: 3,
+    backgroundColor: '#2a2823',
+    borderRadius: 2,
     overflow: 'hidden',
   },
-  progressFill: { height: '100%', borderRadius: 6 },
-  progressPct: { fontSize: 12, color: '#6b7280', textAlign: 'right' },
+  progressFill: { height: '100%', borderRadius: 2 },
   divider: { height: 1, backgroundColor: '#e5e7eb', marginVertical: 4 },
   badge: {
     alignSelf: 'flex-start',
@@ -354,5 +467,75 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: '#e5e7eb',
+  },
+});
+
+const workoutStyles = StyleSheet.create({
+  exercise: {
+    paddingBottom: 24,
+    marginBottom: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a2823',
+  },
+  exHead: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 14,
+    marginBottom: 6,
+  },
+  exNum: {
+    fontFamily: 'monospace',
+    fontSize: 13,
+    color: '#8a8678',
+    fontWeight: '600',
+  },
+  exName: {
+    fontSize: 20,
+    fontWeight: '600',
+    flex: 1,
+    letterSpacing: -0.3,
+  },
+  exMeta: {
+    fontFamily: 'monospace',
+    fontSize: 11,
+    color: '#8a8678',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 14,
+  },
+  setsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    flexWrap: 'wrap',
+  },
+  setBtn: {
+    width: 64,
+    height: 64,
+    borderWidth: 1,
+    borderColor: '#2a2823',
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    position: 'relative',
+  },
+  setBtnLabel: {
+    fontFamily: 'monospace',
+    fontSize: 9,
+    color: '#8a8678',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  setBtnNum: {
+    fontFamily: 'monospace',
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#f4f1ea',
+  },
+  setCheck: {
+    position: 'absolute',
+    top: 4,
+    right: 6,
+    fontSize: 10,
   },
 });

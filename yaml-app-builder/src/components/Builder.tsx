@@ -23,8 +23,20 @@ import {
   TODO_TIMERS_YAML,
   TODO_SCREENS_YAML,
 } from '../examples/todo';
+import {
+  WORKOUT_APP_YAML,
+  WORKOUT_STATE_YAML,
+  WORKOUT_TIMERS_YAML,
+  WORKOUT_SCREENS_YAML,
+} from '../examples/workout';
 
 const EXAMPLES: Record<string, Record<YamlFileKey, string>> = {
+  'Push / Pull': {
+    app: WORKOUT_APP_YAML,
+    state: WORKOUT_STATE_YAML,
+    timers: WORKOUT_TIMERS_YAML,
+    screens: WORKOUT_SCREENS_YAML,
+  },
   Stopwatch: {
     app: EXAMPLE_APP_YAML,
     state: EXAMPLE_STATE_YAML,
@@ -50,10 +62,10 @@ export function Builder() {
   const [tab, setTab] = useState<Tab>('editor');
 
   const [files, setFiles] = useState({
-    app: EXAMPLE_APP_YAML,
-    state: EXAMPLE_STATE_YAML,
-    timers: EXAMPLE_TIMERS_YAML,
-    screens: EXAMPLE_SCREENS_YAML,
+    app: WORKOUT_APP_YAML,
+    state: WORKOUT_STATE_YAML,
+    timers: WORKOUT_TIMERS_YAML,
+    screens: WORKOUT_SCREENS_YAML,
   });
 
   const [errors, setErrors] = useState<Record<YamlFileKey, string | null>>({
@@ -66,10 +78,10 @@ export function Builder() {
   const [bundle, setBundle] = useState<AppBundle | null>(() => {
     try {
       return parseAppBundle({
-        app: EXAMPLE_APP_YAML,
-        state: EXAMPLE_STATE_YAML,
-        timers: EXAMPLE_TIMERS_YAML,
-        screens: EXAMPLE_SCREENS_YAML,
+        app: WORKOUT_APP_YAML,
+        state: WORKOUT_STATE_YAML,
+        timers: WORKOUT_TIMERS_YAML,
+        screens: WORKOUT_SCREENS_YAML,
       });
     } catch {
       return null;

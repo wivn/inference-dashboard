@@ -205,9 +205,81 @@ a `grid`. Children without `span` default to `1`.
 
 ---
 
+#### `workout`
+
+Renders a grouped list of exercises, each with set-tap buttons. Each exercise
+object must have `name`, `reps`, `rest` (seconds), and `sets` (array of booleans).
+
+The `onSetTap` actions fire when a set button is tapped and receive these extra
+context variables: `$exerciseIndex`, `$setIndex`, `$exercise` (the exercise
+object), and `$set` (the current done boolean — value **before** the tap).
+
+```yaml
+- type: workout
+  exercises: "$exercises"
+  onSetTap:
+    # Toggle the set's done state
+    - type: toggleNestedItem
+      variable: exercises
+      outerIndex: "$exerciseIndex"
+      innerField: sets
+      innerIndex: "$setIndex"
+
+    # Adjust a completed-sets counter (+1 if marking done, -1 if undoing)
+    - type: setState
+      variable: completedSets
+      value: "$completedSets + ($set ? -1 : 1)"
+
+    # Start a rest countdown (only when marking done, not undoing)
+    - type: setState
+      variable: timerSeconds
+      value: "$exercise.rest"
+    - type: setState
+      variable: timerActive
+      value: "!$set"
+```
+
+---
+
+## Screen overlay
+
+A `screen.overlay` renders a fixed panel (default: bottom) that slides over the
+scroll content — perfect for a rest timer or notification bar.
+
+```yaml
+screens:
+  - name: main
+    overlay:
+      visible: "$timerActive"           # Show/hide with a boolean expression
+      backgroundColor: "#d4ff3a"        # Defaults to theme.primary
+      position: bottom                  # bottom (default) | top
+      children:
+        - type: row
+          gap: 12
+          children:
+            - type: heading
+              value: "timeFormat($timerSeconds)"  # Built-in time formatter
+            - type: button
+              label: "+30s"
+              actions:
+                - type: increment
+                  variable: timerSeconds
+                  amount: 30
+            - type: button
+              label: Skip
+              actions:
+                - type: setState
+                  variable: timerActive
+                  value: false
+    layout:
+      - ...
+```
+
+---
+
 ## Actions
 
-Used in `button.actions` and `timer.actions`:
+Used in `button.actions`, `timer.actions`, and `workout.onSetTap`:
 
 | type | fields | description |
 |------|--------|-------------|
@@ -215,10 +287,13 @@ Used in `button.actions` and `timer.actions`:
 | `increment` | `variable`, `amount` | Add `amount` (default 1) to a number variable. |
 | `decrement` | `variable`, `amount` | Subtract `amount` (default 1) from a number variable. |
 | `navigate` | `screen` | Navigate to a named screen. |
+| `toggleItemField` | `variable`, `index`, `field` | Toggle a boolean field on `array[index]`. |
+| `setItemField` | `variable`, `index`, `field`, `value` | Set a field on `array[index]`. |
+| `toggleNestedItem` | `variable`, `outerIndex`, `innerField`, `innerIndex`, `field?` | Toggle `array[outerIndex].innerField[innerIndex]` (or its `.field` if an object). |
 
 ---
 
-## Expressions
+## Expressions & built-ins
 
 - `$varName` — reference a state variable
 - `$count + 1` — arithmetic
@@ -226,6 +301,8 @@ Used in `button.actions` and `timer.actions`:
 - `$count > 0` — comparison (used in `visible`, `disabled`, `active`)
 - `"$score / $max * 100"` — formula for progress bars
 - `"$isRunning ? 'Running' : 'Stopped'"` — ternary for labels
+- `timeFormat($timerSeconds)` — format seconds as `"M:SS"` (e.g. `"1:30"`)
+- `"$completedSets + ($set ? -1 : 1)"` — inline conditional arithmetic
 
 ---
 

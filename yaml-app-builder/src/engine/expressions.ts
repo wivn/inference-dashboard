@@ -1,12 +1,28 @@
 import type { StateMap } from '../types/schema';
 
+// Format seconds as "M:SS"
+function formatTime(seconds: number): string {
+  const s = Math.max(0, Math.floor(seconds));
+  const m = Math.floor(s / 60);
+  const rem = s % 60;
+  return `${m}:${String(rem).padStart(2, '0')}`;
+}
+
+// Replace timeFormat(expr) calls within a string before further evaluation.
+function applyBuiltins(str: string, state: StateMap): string {
+  return str.replace(/timeFormat\(([^)]+)\)/g, (_, inner) => {
+    const seconds = evalNumber(inner.trim(), state);
+    return formatTime(seconds);
+  });
+}
+
 // Evaluate a simple expression against the current state.
 // Supports: $varName substitution, basic JS-like arithmetic/comparison.
 export function evalExpression(expr: string | number | boolean | undefined, state: StateMap): unknown {
   if (expr === undefined || expr === null) return expr;
   if (typeof expr === 'number' || typeof expr === 'boolean') return expr;
 
-  const str = String(expr).trim();
+  const str = applyBuiltins(String(expr).trim(), state);
 
   // Pure variable reference: $varName
   if (/^\$[a-zA-Z_][a-zA-Z0-9_]*$/.test(str)) {
@@ -30,9 +46,9 @@ export function evalBool(expr: string | boolean | undefined, state: StateMap): b
   if (expr === undefined) return true;
   if (typeof expr === 'boolean') return expr;
 
-  const str = String(expr).trim();
+  const str = applyBuiltins(String(expr).trim(), state);
 
-  // Handle negation: !$varName
+  // Handle negation: !expr
   if (str.startsWith('!')) {
     return !evalBool(str.slice(1).trim(), state);
   }
@@ -42,8 +58,7 @@ export function evalBool(expr: string | boolean | undefined, state: StateMap): b
     return Boolean(state[str.slice(1)]);
   }
 
-  // Comparison expressions: $count > 0, $count === 5, etc.
-  // Replace $varName with their values and evaluate safely
+  // Comparison / compound expressions — substitute vars and eval
   const substituted = str.replace(/\$([a-zA-Z_][a-zA-Z0-9_]*)/g, (_, name) => {
     const val = state[name];
     if (typeof val === 'string') return JSON.stringify(val);
@@ -63,7 +78,7 @@ export function evalNumber(expr: string | number | undefined, state: StateMap): 
   if (expr === undefined) return 0;
   if (typeof expr === 'number') return expr;
 
-  const str = String(expr).trim();
+  const str = applyBuiltins(String(expr).trim(), state);
 
   const substituted = str.replace(/\$([a-zA-Z_][a-zA-Z0-9_]*)/g, (_, name) => {
     const val = state[name];
@@ -87,7 +102,7 @@ export function resolveNewValue(
   if (valueExpr === undefined) return undefined;
   if (typeof valueExpr === 'number' || typeof valueExpr === 'boolean') return valueExpr;
 
-  const str = String(valueExpr).trim();
+  const str = applyBuiltins(String(valueExpr).trim(), state);
 
   // Boolean literals
   if (str === 'true') return true;

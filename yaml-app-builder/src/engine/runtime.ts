@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import type { Timer, TimerAction, StateMap } from '../types/schema';
-import { evalBool, resolveNewValue } from './expressions';
+import { evalBool, evalNumber, resolveNewValue } from './expressions';
 
 // Execute a list of actions against current state, returning the next state patch.
 export function executeActions(
@@ -40,6 +40,54 @@ export function executeActions(
         }
         break;
       }
+      case 'toggleItemField': {
+        if (!action.variable || action.field === undefined) break;
+        const arr = [...((currentState[action.variable] as Record<string, unknown>[]) ?? [])];
+        const idx = Math.round(evalNumber(String(action.index ?? 0), currentState));
+        if (idx >= 0 && idx < arr.length) {
+          arr[idx] = { ...(arr[idx] as Record<string, unknown>), [action.field]: !(arr[idx] as Record<string, unknown>)[action.field] };
+        }
+        patch[action.variable] = arr;
+        break;
+      }
+      case 'setItemField': {
+        if (!action.variable || action.field === undefined) break;
+        const arr = [...((currentState[action.variable] as Record<string, unknown>[]) ?? [])];
+        const idx = Math.round(evalNumber(String(action.index ?? 0), currentState));
+        if (idx >= 0 && idx < arr.length) {
+          arr[idx] = { ...(arr[idx] as Record<string, unknown>), [action.field]: resolveNewValue(action.value as string | number | boolean, currentState) };
+        }
+        patch[action.variable] = arr;
+        break;
+      }
+      case 'toggleNestedItem': {
+        // Toggles array[outerIndex].innerField[innerIndex]  (or its .field if an object)
+        if (!action.variable || !action.innerField) break;
+        const outer = [...((currentState[action.variable] as Record<string, unknown>[]) ?? [])];
+        const outerIdx = Math.round(evalNumber(String(action.outerIndex ?? 0), currentState));
+        if (outerIdx < 0 || outerIdx >= outer.length) break;
+
+        const outerItem = { ...(outer[outerIdx] as Record<string, unknown>) };
+        const inner = [...((outerItem[action.innerField] as unknown[]) ?? [])];
+        const innerIdx = Math.round(evalNumber(String(action.innerIndex ?? 0), currentState));
+        if (innerIdx < 0 || innerIdx >= inner.length) break;
+
+        if (action.field) {
+          // Item is an object — toggle its field
+          inner[innerIdx] = {
+            ...(inner[innerIdx] as Record<string, unknown>),
+            [action.field]: !(inner[innerIdx] as Record<string, unknown>)[action.field],
+          };
+        } else {
+          // Item is a primitive boolean — flip it directly
+          inner[innerIdx] = !inner[innerIdx];
+        }
+
+        outerItem[action.innerField] = inner;
+        outer[outerIdx] = outerItem;
+        patch[action.variable] = outer;
+        break;
+      }
     }
   }
 
@@ -63,7 +111,6 @@ export function useTimers(
       const id = setInterval(() => {
         const current = stateRef.current;
 
-        // Check if timer is active
         const isActive = timer.active !== undefined ? evalBool(timer.active, current) : true;
         if (!isActive) return;
 
